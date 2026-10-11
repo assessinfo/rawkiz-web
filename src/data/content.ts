@@ -6,6 +6,17 @@ export const company = {
   hrEmail: "[ADD HR CONTACT EMAIL WHEN AVAILABLE]",
 };
 
+// Footer social links. Put a full URL (https://…) in `url` to show the link.
+// Leave it "" — or keep any [PLACEHOLDER] text — and the link stays hidden.
+export const socials = [
+  { label: "LinkedIn", url: "" },
+  { label: "Instagram", url: "" },
+  { label: "X", url: "" },
+];
+
+// Only a real http(s)/mailto destination counts as filled in.
+export const isRealUrl = (url: string) => /^(https?:\/\/|mailto:)\S+$/i.test(url.trim());
+
 export const values = [
   { title: "Global by default", body: "Singapore HQ, teammates and collaborators across time zones. [ADD TEAM SIZE / COUNTRIES]" },
   { title: "Craft + technology", body: "We care about how things are made as much as what they do." },
