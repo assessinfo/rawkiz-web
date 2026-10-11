@@ -18,7 +18,7 @@ export const socials = [
 export const isRealUrl = (url: string) => /^(https?:\/\/|mailto:)\S+$/i.test(url.trim());
 
 export const values = [
-  { title: "Global by default", body: "Singapore HQ, teammates and collaborators across time zones. [ADD TEAM SIZE / COUNTRIES]" },
+  { title: "Global by default", body: "Singapore HQ, teammates and collaborators across time zones. Thank you" },
   { title: "Craft + technology", body: "We care about how things are made as much as what they do." },
   { title: "Ownership", body: "Small teams, real responsibility, work you can point to." },
   { title: "Always learning", body: "Space to grow skills and try new things. [CONFIRM LEARNING BUDGET / PROGRAMS]" },
