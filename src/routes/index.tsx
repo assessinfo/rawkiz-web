@@ -132,9 +132,6 @@ function Index() {
       </Section>
 
       <Section id="areas" num="03" label="Career areas" title="Find where you fit.">
-        <p className="reveal mb-10 max-w-3xl border border-cool/40 bg-card p-5 font-mono text-sm text-cool">
-          We're not listing specific vacancies right now. Tell us which area fits you and we'll reach out when a role opens.
-        </p>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {careerAreas.map((a) => (
             <article key={a.name} className="reveal group flex flex-col border border-border bg-card p-7 transition-all hover:-translate-y-1 hover:border-primary">
@@ -149,7 +146,11 @@ function Index() {
         </div>
       </Section>
 
-      <Section id="apply" num="04" label="Application draft" title="Get your application ready.">
+      <Section id="roles" num="04" label="Open roles" title="Current openings.">
+        <OpenRoles />
+      </Section>
+
+      <Section id="apply" num="05" label="Application draft" title="Get your application ready.">
         <ApplicationForm />
       </Section>
 
