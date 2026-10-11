@@ -4,8 +4,8 @@ const SPREADSHEET_ID = "1x6Yok1TWkhbzGmNCEYso7iXs15V7Fl8KsLAcUEBF6Ks";
 const GATEWAY = `https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets/${SPREADSHEET_ID}`;
 
 function gatewayHeaders() {
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  const connectionKey = process.env.GOOGLE_SHEETS_API_KEY;
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const connectionKey = process.env["GOOGLE_SHEETS_API_KEY"];
   if (!lovableKey || !connectionKey) throw new Error("Google Sheets connection is not configured.");
   return { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": connectionKey, "Content-Type": "application/json" };
 }
