@@ -1,12 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { company, values, careerAreas, interviewSteps, prepTips, faqs, workPassOptions, socials, isRealUrl } from "@/data/content";
 import { type Application, validate, handleSubmit, fieldLabels, requiredFields } from "@/lib/application";
+import { getRoles, submitApplication } from "@/server/sheets";
 
 // Footer links render only when they point at a real destination.
 const visibleSocials = socials.filter((s) => isRealUrl(s.url));
 
+const rolesQuery = queryOptions({ queryKey: ["open-roles"], queryFn: () => getRoles(), staleTime: 5 * 60 * 1000 });
+
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(rolesQuery),
   head: () => ({
     meta: [
       { title: "Careers at Rawkiz | Singapore · Global" },
