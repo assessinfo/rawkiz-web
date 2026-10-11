@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { company, values, careerAreas, interviewSteps, prepTips, faqs, workPassOptions, socials, isRealUrl } from "@/data/content";
 import { type Application, validate, handleSubmit, fieldLabels, requiredFields } from "@/lib/application";
 import { getRoles, submitApplication } from "@/lib/sheets.functions";
+import teamCulture from "@/assets/team-culture.jpg.asset.json";
 
 // Footer links render only when they point at a real destination.
 const visibleSocials = socials.filter((s) => isRealUrl(s.url));
@@ -105,6 +106,9 @@ function Index() {
       </div>
 
       <Section id="why" num="01" label="Why Rawkiz" title="Small team. Big ambition. No borders.">
+        <div className="reveal mb-12 overflow-hidden border border-border">
+          <img src={teamCulture.url} alt="The Rawkiz vibe — creative, independent, global" className="h-72 w-full object-cover md:h-96" loading="lazy" />
+        </div>
         <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
           {values.map((v, i) => (
             <div key={v.title} className="reveal group bg-background p-8 transition-colors hover:bg-card">
