@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { company, values, careerAreas, interviewSteps, prepTips, faqs, workPassOptions } from "@/data/content";
+import { company, values, careerAreas, interviewSteps, prepTips, faqs, workPassOptions, socials, isRealUrl } from "@/data/content";
 import { type Application, validate, handleSubmit, fieldLabels, requiredFields } from "@/lib/application";
+
+// Footer links render only when they point at a real destination.
+const visibleSocials = socials.filter((s) => isRealUrl(s.url));
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -170,9 +173,13 @@ function Index() {
             <span className="font-display text-5xl font-bold tracking-tighter">rawkiz<span className="text-primary">.</span></span>
             <p className="mt-2 font-mono text-sm text-muted-foreground">Singapore · Working worldwide</p>
           </div>
-          <nav aria-label="Social" className="flex gap-5 font-mono text-sm">
-            {["LinkedIn", "Instagram", "X"].map((s) => <a key={s} href="#" className="hover:text-primary">[{s}]</a>)}
-          </nav>
+          {visibleSocials.length > 0 && (
+            <nav aria-label="Social" className="flex gap-5 font-mono text-sm">
+              {visibleSocials.map((s) => (
+                <a key={s.label} href={s.url.trim()} target="_blank" rel="noopener noreferrer" className="hover:text-primary">{s.label}</a>
+              ))}
+            </nav>
+          )}
           <p className="font-mono text-sm text-muted-foreground md:text-right">{company.hrEmail}</p>
         </div>
       </footer>
