@@ -154,7 +154,7 @@ function Index() {
         <ApplicationForm />
       </Section>
 
-      <Section id="interview" num="05" label="Interview guidance" title="What to expect.">
+      <Section id="interview" num="06" label="Interview guidance" title="What to expect.">
         <p className="mb-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">Indicative process — may vary by role</p>
         <ol className="reveal mb-20 grid gap-px bg-border md:grid-cols-5">
           {interviewSteps.map((s, i) => (
@@ -193,20 +193,64 @@ function Index() {
   );
 }
 
+function OpenRoles() {
+  const { data: roles } = useSuspenseQuery(rolesQuery);
+  if (roles.length === 0) {
+    return (
+      <p className="reveal max-w-3xl border border-cool/40 bg-card p-5 font-mono text-sm text-cool">
+        No specific vacancies right now. Tell us which area fits you above and we'll reach out when a role opens.
+      </p>
+    );
+  }
+  return (
+    <div className="grid gap-5 md:grid-cols-2">
+      {roles.map((r) => (
+        <article key={r.title} className="reveal group flex flex-col border border-border bg-card p-7 transition-all hover:-translate-y-1 hover:border-primary">
+          <span className="w-fit border border-primary/50 px-2 py-1 font-mono text-[11px] uppercase tracking-wider text-primary">{r.type || "Open"}</span>
+          <h3 className="mt-6 text-2xl font-bold">{r.title}</h3>
+          <p className="mt-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">{[r.team, r.location].filter(Boolean).join(" · ")}</p>
+          <p className="mt-3 flex-1 text-sm text-muted-foreground">{r.description}</p>
+          <a href="#apply" className={`${btnGhost} mt-6 w-fit`}>Apply →</a>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 const empty: Application = { fullName: "", email: "", phone: "", location: "", timeZone: "", careerArea: "", experience: "", links: "", availability: "", workPass: "", motivation: "", skills: "" };
 
 function ApplicationForm() {
   const [data, setData] = useState<Application>(empty);
   const [errors, setErrors] = useState<Partial<Record<keyof Application, string>>>({});
   const [done, setDone] = useState("");
+  const [sending, setSending] = useState(false);
   const set = (k: keyof Application) => (e: { target: { value: string } }) => setData({ ...data, [k]: e.target.value });
 
-  async function go(format: "pdf" | "txt") {
+  function check() {
     const e = validate(data);
     setErrors(e);
-    if (Object.keys(e).length) { document.getElementById(`f-${Object.keys(e)[0]}`)?.focus(); setDone(""); return; }
+    if (Object.keys(e).length) { document.getElementById(`f-${Object.keys(e)[0]}`)?.focus(); setDone(""); return false; }
+    return true;
+  }
+
+  async function go(format: "pdf" | "txt") {
+    if (!check()) return;
     await handleSubmit(data, format);
     setDone(`Draft downloaded as .${format}. Keep it ready to send.`);
+  }
+
+  async function send() {
+    if (!check()) return;
+    setSending(true);
+    try {
+      await submitApplication({ data });
+      setDone("Application sent — thank you! We'll be in touch.");
+      setData(empty);
+    } catch {
+      setDone("Couldn't send right now. Please download your draft and try again later.");
+    } finally {
+      setSending(false);
+    }
   }
 
   const input = "w-full border border-input bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none";
