@@ -107,7 +107,7 @@ function Index() {
 
       <Section id="why" num="01" label="Why Rawkiz" title="Small team. Big ambition. No borders.">
         <div className="reveal mb-12 overflow-hidden border border-border">
-          <img src={teamCulture.url} alt="The Rawkiz vibe — creative, independent, global" className="h-72 w-full object-cover md:h-96" loading="lazy" />
+          <img src={teamCulture.url} alt="The Rawkiz vibe — creative, independent, global" className="h-72 w-full object-cover object-top md:h-96" loading="lazy" />
         </div>
         <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
           {values.map((v, i) => (
