@@ -3,7 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { company, values, careerAreas, interviewSteps, prepTips, faqs, workPassOptions, socials, isRealUrl } from "@/data/content";
 import { type Application, validate, handleSubmit, fieldLabels, requiredFields } from "@/lib/application";
-import { getRoles, submitApplication } from "@/server/sheets";
+import { getRoles, submitApplication } from "@/lib/sheets.functions";
 
 // Footer links render only when they point at a real destination.
 const visibleSocials = socials.filter((s) => isRealUrl(s.url));
