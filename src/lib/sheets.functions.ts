@@ -41,7 +41,7 @@ export const submitApplication = createServerFn({ method: "POST" })
       data.careerArea, data.experience, data.workPass, data.links, data.availability, data.skills,
       data.motivation, "Careers page",
     ];
-    const res = await fetch(`${GATEWAY}/values/Applications!A:N:append?valueInputOption=USER_ENTERED`, {
+    const res = await fetch(`${GATEWAY}/values/Applications!A:N:append?valueInputOption=RAW`, {
       method: "POST",
       headers: gatewayHeaders(),
       body: JSON.stringify({ values: [row] }),
