@@ -1,4 +1,5 @@
 # Roadmap
 
-- [ ] Verify form submission lands in the Applications tab (test failed on required fields timeZone/skills — fix test, retest)
-- [ ] Add uploaded photo (stylish teenager against gray door) to the page, likely "Why Rawkiz" section, via lovable-assets
+All done:
+- [x] Form submission verified end-to-end — rows land in the Applications tab (phone fixed to save as text)
+- [x] Uploaded photo added to the "Why Rawkiz" section
