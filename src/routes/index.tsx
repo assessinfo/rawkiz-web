@@ -1,12 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { company, values, careerAreas, interviewSteps, prepTips, faqs, workPassOptions, socials, isRealUrl } from "@/data/content";
 import { type Application, validate, handleSubmit, fieldLabels, requiredFields } from "@/lib/application";
+import { getRoles, submitApplication } from "@/lib/sheets.functions";
+import teamCulture from "@/assets/team-culture.jpg.asset.json";
 
 // Footer links render only when they point at a real destination.
 const visibleSocials = socials.filter((s) => isRealUrl(s.url));
 
+const rolesQuery = queryOptions({ queryKey: ["open-roles"], queryFn: () => getRoles(), staleTime: 5 * 60 * 1000 });
+
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(rolesQuery),
   head: () => ({
     meta: [
       { title: "Careers at Rawkiz | Singapore · Global" },
@@ -100,6 +106,9 @@ function Index() {
       </div>
 
       <Section id="why" num="01" label="Why Rawkiz" title="Small team. Big ambition. No borders.">
+        <div className="reveal mb-12 overflow-hidden border border-border">
+          <img src={teamCulture.url} alt="The Rawkiz vibe — creative, independent, global" className="h-72 w-full object-cover object-top md:h-96" loading="lazy" />
+        </div>
         <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
           {values.map((v, i) => (
             <div key={v.title} className="reveal group bg-background p-8 transition-colors hover:bg-card">
@@ -127,9 +136,6 @@ function Index() {
       </Section>
 
       <Section id="areas" num="03" label="Career areas" title="Find where you fit.">
-        <p className="reveal mb-10 max-w-3xl border border-cool/40 bg-card p-5 font-mono text-sm text-cool">
-          We're not listing specific vacancies right now. Tell us which area fits you and we'll reach out when a role opens.
-        </p>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {careerAreas.map((a) => (
             <article key={a.name} className="reveal group flex flex-col border border-border bg-card p-7 transition-all hover:-translate-y-1 hover:border-primary">
@@ -144,11 +150,15 @@ function Index() {
         </div>
       </Section>
 
-      <Section id="apply" num="04" label="Application draft" title="Get your application ready.">
+      <Section id="roles" num="04" label="Open roles" title="Current openings.">
+        <OpenRoles />
+      </Section>
+
+      <Section id="apply" num="05" label="Application draft" title="Get your application ready.">
         <ApplicationForm />
       </Section>
 
-      <Section id="interview" num="05" label="Interview guidance" title="What to expect.">
+      <Section id="interview" num="06" label="Interview guidance" title="What to expect.">
         <p className="mb-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">Indicative process — may vary by role</p>
         <ol className="reveal mb-20 grid gap-px bg-border md:grid-cols-5">
           {interviewSteps.map((s, i) => (
@@ -163,7 +173,7 @@ function Index() {
         <Accordion items={prepTips} />
       </Section>
 
-      <Section id="faq" num="06" label="FAQ" title="Questions, answered.">
+      <Section id="faq" num="07" label="FAQ" title="Questions, answered.">
         <Accordion items={faqs} />
       </Section>
 
@@ -187,20 +197,64 @@ function Index() {
   );
 }
 
+function OpenRoles() {
+  const { data: roles } = useSuspenseQuery(rolesQuery);
+  if (roles.length === 0) {
+    return (
+      <p className="reveal max-w-3xl border border-cool/40 bg-card p-5 font-mono text-sm text-cool">
+        No specific vacancies right now. Tell us which area fits you above and we'll reach out when a role opens.
+      </p>
+    );
+  }
+  return (
+    <div className="grid gap-5 md:grid-cols-2">
+      {roles.map((r) => (
+        <article key={r.title} className="reveal group flex flex-col border border-border bg-card p-7 transition-all hover:-translate-y-1 hover:border-primary">
+          <span className="w-fit border border-primary/50 px-2 py-1 font-mono text-[11px] uppercase tracking-wider text-primary">{r.type || "Open"}</span>
+          <h3 className="mt-6 text-2xl font-bold">{r.title}</h3>
+          <p className="mt-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">{[r.team, r.location].filter(Boolean).join(" · ")}</p>
+          <p className="mt-3 flex-1 text-sm text-muted-foreground">{r.description}</p>
+          <a href="#apply" className={`${btnGhost} mt-6 w-fit`}>Apply →</a>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 const empty: Application = { fullName: "", email: "", phone: "", location: "", timeZone: "", careerArea: "", experience: "", links: "", availability: "", workPass: "", motivation: "", skills: "" };
 
 function ApplicationForm() {
   const [data, setData] = useState<Application>(empty);
   const [errors, setErrors] = useState<Partial<Record<keyof Application, string>>>({});
   const [done, setDone] = useState("");
+  const [sending, setSending] = useState(false);
   const set = (k: keyof Application) => (e: { target: { value: string } }) => setData({ ...data, [k]: e.target.value });
 
-  async function go(format: "pdf" | "txt") {
+  function check() {
     const e = validate(data);
     setErrors(e);
-    if (Object.keys(e).length) { document.getElementById(`f-${Object.keys(e)[0]}`)?.focus(); setDone(""); return; }
+    if (Object.keys(e).length) { document.getElementById(`f-${Object.keys(e)[0]}`)?.focus(); setDone(""); return false; }
+    return true;
+  }
+
+  async function go(format: "pdf" | "txt") {
+    if (!check()) return;
     await handleSubmit(data, format);
     setDone(`Draft downloaded as .${format}. Keep it ready to send.`);
+  }
+
+  async function send() {
+    if (!check()) return;
+    setSending(true);
+    try {
+      await submitApplication({ data });
+      setDone("Application sent — thank you! We'll be in touch.");
+      setData(empty);
+    } catch {
+      setDone("Couldn't send right now. Please download your draft and try again later.");
+    } finally {
+      setSending(false);
+    }
   }
 
   const input = "w-full border border-input bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none";
@@ -218,7 +272,7 @@ function ApplicationForm() {
   return (
     <div className="reveal">
       <p className="mb-8 border-l-4 border-primary bg-card p-5 text-sm">
-        This form creates a draft for your records. Applications will open soon. Keep your draft ready to send.
+        Fill this in and hit submit — your application lands with our team straight away. You can also download a copy for your records.
       </p>
       <form noValidate onSubmit={(e) => { e.preventDefault(); go("pdf"); }} className="grid gap-6 border border-border bg-card p-6 md:grid-cols-2 md:p-10">
         {field("fullName", <input {...p("fullName")} autoComplete="name" />)}
@@ -234,7 +288,8 @@ function ApplicationForm() {
         {field("skills", <input {...p("skills")} placeholder="e.g. React, Figma, Copywriting" />, true)}
         {field("motivation", <><textarea {...p("motivation")} rows={6} placeholder="Why Rawkiz? (~150 words)" /><p className="mt-1 font-mono text-xs text-muted-foreground">{data.motivation.trim().split(/\s+/).filter(Boolean).length} words</p></>, true)}
         <div className="flex flex-wrap items-center gap-3 md:col-span-2">
-          <button type="submit" className={btnPrimary}>Download application draft</button>
+          <button type="button" onClick={send} disabled={sending} className={btnPrimary}>{sending ? "Sending…" : "Submit application"}</button>
+          <button type="submit" className={btnGhost}>Download application draft</button>
           <button type="button" onClick={() => go("txt")} className={btnGhost}>Download as .txt</button>
           <p role="status" className="font-mono text-sm text-primary">{done}</p>
         </div>
