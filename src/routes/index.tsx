@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { company, values, careerAreas, interviewSteps, prepTips, faqs, workPassOptions, socials, isRealUrl } from "@/data/content";
@@ -76,7 +76,10 @@ function Index() {
     <main className="overflow-x-hidden">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-6 md:px-10">
         <span className="font-display text-2xl font-bold tracking-tighter">rawkiz<span className="text-primary">.</span></span>
-        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Careers · SG → World</span>
+        <div className="flex items-center gap-5">
+          <Link to="/chat" className="font-mono text-xs uppercase tracking-widest text-primary transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Ask the AI assistant →</Link>
+          <span className="hidden font-mono text-xs uppercase tracking-widest text-muted-foreground sm:inline">Careers · SG → World</span>
+        </div>
       </header>
 
       {/* Hero */}
