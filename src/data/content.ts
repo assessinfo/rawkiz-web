@@ -9,7 +9,7 @@ export const company = {
 // Footer social links. Put a full URL (https://…) in `url` to show the link.
 // Leave it "" — or keep any [PLACEHOLDER] text — and the link stays hidden.
 export const socials = [
-  { label: "LinkedIn", url: "https://www.linkedin.com/company/rawkiz" },
+  { label: "LinkedIn", url: "" },
   { label: "Instagram", url: "" },
   { label: "X", url: "" },
 ];
