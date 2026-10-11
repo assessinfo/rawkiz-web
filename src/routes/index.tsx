@@ -169,7 +169,7 @@ function Index() {
         <Accordion items={prepTips} />
       </Section>
 
-      <Section id="faq" num="06" label="FAQ" title="Questions, answered.">
+      <Section id="faq" num="07" label="FAQ" title="Questions, answered.">
         <Accordion items={faqs} />
       </Section>
 
@@ -268,23 +268,12 @@ function ApplicationForm() {
   return (
     <div className="reveal">
       <p className="mb-8 border-l-4 border-primary bg-card p-5 text-sm">
-        This form creates a draft for your records. Applications will open soon. Keep your draft ready to send.
+        Fill this in and hit submit — your application lands with our team straight away. You can also download a copy for your records.
       </p>
-      <form noValidate onSubmit={(e) => { e.preventDefault(); go("pdf"); }} className="grid gap-6 border border-border bg-card p-6 md:grid-cols-2 md:p-10">
-        {field("fullName", <input {...p("fullName")} autoComplete="name" />)}
-        {field("email", <input {...p("email")} type="email" autoComplete="email" />)}
-        {field("phone", <input {...p("phone")} type="tel" autoComplete="tel" />)}
-        {field("location", <input {...p("location")} placeholder="e.g. Singapore" />)}
-        {field("timeZone", <input {...p("timeZone")} placeholder="e.g. UTC+8 / SGT" />)}
-        {field("careerArea", <select {...p("careerArea")}><option value="">Select an area</option>{careerAreas.map((a) => <option key={a.name}>{a.name}</option>)}</select>)}
-        {field("experience", <select {...p("experience")}><option value="">Select</option>{["0–1", "1–3", "3–5", "5–10", "10+"].map((y) => <option key={y}>{y}</option>)}</select>)}
-        {field("workPass", <select {...p("workPass")}><option value="">Select</option>{workPassOptions.map((o) => <option key={o}>{o}</option>)}</select>)}
-        {field("links", <input {...p("links")} placeholder="https://…" />, true)}
-        {field("availability", <input {...p("availability")} placeholder="e.g. 1 month notice" />, true)}
-        {field("skills", <input {...p("skills")} placeholder="e.g. React, Figma, Copywriting" />, true)}
-        {field("motivation", <><textarea {...p("motivation")} rows={6} placeholder="Why Rawkiz? (~150 words)" /><p className="mt-1 font-mono text-xs text-muted-foreground">{data.motivation.trim().split(/\s+/).filter(Boolean).length} words</p></>, true)}
+...
         <div className="flex flex-wrap items-center gap-3 md:col-span-2">
-          <button type="submit" className={btnPrimary}>Download application draft</button>
+          <button type="button" onClick={send} disabled={sending} className={btnPrimary}>{sending ? "Sending…" : "Submit application"}</button>
+          <button type="submit" className={btnGhost}>Download application draft</button>
           <button type="button" onClick={() => go("txt")} className={btnGhost}>Download as .txt</button>
           <p role="status" className="font-mono text-sm text-primary">{done}</p>
         </div>
