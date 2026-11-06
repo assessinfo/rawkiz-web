@@ -1,0 +1,49 @@
+# cPanel Git Version Control deployment file.
+#
+# cPanel runs the tasks below from the repository root every time you click
+# "Deploy" in cPanel -> Git Version Control.
+#
+# BEFORE YOUR FIRST DEPLOY, EDIT THESE THREE THINGS:
+#   1. USERNAME    -> your cPanel username (cPanel shows it top-left of the dashboard)
+#   2. APPNAME     -> the name you gave the Node.js app in cPanel -> Application Manager
+#   3. DEPLOYPATH  -> where the site should appear:
+#        /home/USERNAME/public_html                 for the main domain
+#        /home/USERNAME/public_html/careers         for a subfolder (site.com/careers)
+#        /home/USERNAME/subdomain.example.com       for a subdomain
+#
+# This site is not a plain HTML folder: it runs a server, so the "Start your
+# application" form, the open roles list and the chat assistant need the Node.js
+# app to be running (Application Manager -> create app -> Node.js).
+
+---
+deployment:
+  tasks:
+    # --- 1. Where the built site is copied to ---
+    - export DEPLOYPATH=/home/USERNAME/public_html
+
+    # --- 2. Load the Node.js version from your cPanel Node.js app ---
+    # Without this line the deploy shell has no node/npm of your choosing.
+    # The number (20) is the Node.js version you picked in Application Manager.
+    - source /home/USERNAME/nodevenv/APPNAME/20/bin/activate
+
+    # --- 3. Install dependencies and build ---
+    # `npm install` (not `npm ci`) because this repo has no package-lock.json.
+    - npm install --no-audit --no-fund
+    - npm run build
+
+    # --- 4. Copy the built site into the document root ---
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -R .output/public/. $DEPLOYPATH/
+
+    # Optional: wipe the old copy first so removed pages don't linger.
+    # Uncomment ONLY if you are sure nothing else lives in DEPLOYPATH.
+    # - /bin/rm -rf $DEPLOYPATH/*
+
+    # --- 5. Server code (roles list, application form, chat) ---
+    # The runnable server is .output/server/index.mjs. Application Manager
+    # should point at it:
+    #   Application start command: node .output/server/index.mjs
+    #   Application root:          /home/USERNAME/your-repo-name
+    # It needs these environment variables set in Application Manager:
+    #   LOVABLE_API_KEY
+    #   GOOGLE_SHEETS_API_KEY
