@@ -5,15 +5,24 @@
 #
 # BEFORE YOUR FIRST DEPLOY, EDIT THESE THREE THINGS:
 #   1. USERNAME    -> your cPanel username (cPanel shows it top-left of the dashboard)
-#   2. APPNAME     -> the name you gave the Node.js app in cPanel -> Application Manager
+#   2. APPNAME     -> the name you gave the Node.js app in Application Manager
 #   3. DEPLOYPATH  -> where the site should appear:
 #        /home/USERNAME/public_html                 for the main domain
 #        /home/USERNAME/public_html/careers         for a subfolder (site.com/careers)
 #        /home/USERNAME/subdomain.example.com       for a subdomain
 #
-# This site is not a plain HTML folder: it runs a server, so the "Start your
-# application" form, the open roles list and the chat assistant need the Node.js
-# app to be running (Application Manager -> create app -> Node.js).
+# THIS SITE RUNS A SERVER. The careers page, the chat page, the open roles list
+# and the application form are produced by the Node app, not by saved HTML
+# files: the built public/ folder holds assets only (no index.html). So the
+# domain has to be mapped to the Node app in Application Manager (its
+# Application URL / domain field) -- otherwise visitors reach an empty folder
+# instead of the site.
+#
+# Two ways to get the site onto cPanel:
+#   A. Git Version Control + this file -> builds on the server (tasks below).
+#   B. The prebuilt package (rawkiz-cpanel.zip) -> unzip, point the Node app at
+#      .output/server/index.mjs, add the two settings, start. No install or
+#      build step on the server.
 
 ---
 deployment:
@@ -28,24 +37,36 @@ deployment:
 
     # --- 3. Install dependencies and build ---
     # `npm install` (not `npm ci`) because this repo has no package-lock.json.
+    # Dev dependencies are needed for the build, so don't add --omit=dev.
     - npm install --no-audit --no-fund
-    # build:node targets a plain Node.js server (output: .output/server/index.mjs
-    # + .output/public), which is what step 4 and Application Manager expect.
+    # build:node targets a plain Node.js server: .output/server/index.mjs plus
+    # .output/public. If the build fails, deployment stops here and the live
+    # site is left untouched.
     - npm run build:node
 
-    # --- 4. Copy the built site into the document root ---
+    # --- 4. Copy the built files into the document root ---
+    # Static files (assets, favicon, robots). The pages themselves are served
+    # by the Node app in step 5.
     - /bin/mkdir -p $DEPLOYPATH
     - /bin/cp -R .output/public/. $DEPLOYPATH/
 
-    # Optional: wipe the old copy first so removed pages don't linger.
+    # Optional: wipe the old copy first so removed files don't linger.
     # Uncomment ONLY if you are sure nothing else lives in DEPLOYPATH.
     # - /bin/rm -rf $DEPLOYPATH/*
 
-    # --- 5. Server code (roles list, application form, chat) ---
-    # The runnable server is .output/server/index.mjs. Application Manager
-    # should point at it:
-    #   Application start command: node .output/server/index.mjs
+    # --- 5. The server (pages, roles list, application form, chat) ---
+    # The runnable server is .output/server/index.mjs inside this checkout.
+    # In Application Manager:
     #   Application root:          /home/USERNAME/your-repo-name
-    # It needs these environment variables set in Application Manager:
+    #   Application start command: node .output/server/index.mjs
+    #   Application URL / domain:  the domain or subdomain visitors use
+    # Settings to add in Application Manager:
     #   LOVABLE_API_KEY
     #   GOOGLE_SHEETS_API_KEY
+    # Then Start (or Restart) the app after every deploy.
+
+    # If the app root is NOT this checkout, copy the whole build (server +
+    # public) to the app root instead: uncomment and edit APPPATH.
+    # - export APPPATH=/home/USERNAME/rawkiz-careers
+    # - /bin/mkdir -p $APPPATH/.output
+    # - /bin/cp -R .output/. $APPPATH/.output/
