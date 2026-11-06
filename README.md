@@ -136,13 +136,22 @@ Environment variables the server needs: `LOVABLE_API_KEY`, `GOOGLE_SHEETS_API_KE
 **Lovable:** Publish → Publish changes. Database/secrets apply immediately; app code
 on publish.
 
-**cPanel:** `.cpanel.yml` in this repo drives Git Version Control. Before the first
-deploy, edit `USERNAME`, `APPNAME` and `DEPLOYPATH` inside it, and point the
-Application Manager's start command at the built server (`node .output/server/index.mjs`)
-with `LOVABLE_API_KEY` and `GOOGLE_SHEETS_API_KEY` set as environment variables.
-The cPanel deploy runs `npm run build:node` (Nitro `node-server` preset), which writes
-`.output/server/index.mjs` and `.output/public/` — exactly what the copy step and
-Application Manager use. `npm run build` stays on the Cloudflare target for Lovable publish.
+**cPanel:** two routes.
+
+*Prebuilt package* — upload `rawkiz-cpanel.zip`, unzip it, and in Application
+Manager create a Node.js app with startup file `.output/server/index.mjs`, add
+`LOVABLE_API_KEY` and `GOOGLE_SHEETS_API_KEY`, then Start. No install or build
+step on the server.
+
+*Git Version Control* — `.cpanel.yml` in this repo drives the deploy. Before the
+first deploy, edit `USERNAME`, `APPNAME` and `DEPLOYPATH` inside it. The deploy
+runs `npm run build:node` (Nitro `node-server` preset), which writes
+`.output/server/index.mjs` and `.output/public/`, then copies the public files
+into `DEPLOYPATH`. Point the Node app at `.output/server/index.mjs`, set both
+environment variables, and **map the domain to the app** (Application URL /
+domain field): the built `public/` folder holds assets only, no `index.html`, so
+the pages come from the server and an unmapped domain shows an empty folder.
+`npm run build` stays on the Cloudflare target for Lovable publish.
 
 ---
 
