@@ -34,6 +34,7 @@ bun run dev      # http://localhost:8080
 | --- | --- |
 | `bun run dev` | Dev server with hot reload |
 | `bun run build` | Production build (Nitro; Cloudflare target by default) |
+| `npm run build:node` | Production build for a plain Node.js server (cPanel) |
 | `bun run preview` | Serve the production build locally |
 | `bun run test` | Run the test suite |
 | `bun run lint` / `bun run format` | ESLint / Prettier |
@@ -139,8 +140,9 @@ on publish.
 deploy, edit `USERNAME`, `APPNAME` and `DEPLOYPATH` inside it, and point the
 Application Manager's start command at the built server (`node .output/server/index.mjs`)
 with `LOVABLE_API_KEY` and `GOOGLE_SHEETS_API_KEY` set as environment variables.
-Note the build currently targets Cloudflare — switch the Nitro preset to
-`node-server` before relying on that path.
+The cPanel deploy runs `npm run build:node` (Nitro `node-server` preset), which writes
+`.output/server/index.mjs` and `.output/public/` — exactly what the copy step and
+Application Manager use. `npm run build` stays on the Cloudflare target for Lovable publish.
 
 ---
 
