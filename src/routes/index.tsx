@@ -9,7 +9,7 @@ import teamCulture from "@/assets/team-culture.jpg.asset.json";
 // Footer links render only when they point at a real destination.
 const visibleSocials = socials.filter((s) => isRealUrl(s.url));
 
-const rolesQuery = queryOptions({ queryKey: ["open-roles"], queryFn: () => getRoles(), staleTime: 5 * 60 * 1000 });
+const rolesQuery = queryOptions({ queryKey: ["open-roles"], queryFn: () => getRoles(), staleTime: 5 * 60 * 1000, refetchOnMount: "always" });
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(rolesQuery),
