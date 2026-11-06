@@ -29,7 +29,9 @@ deployment:
     # --- 3. Install dependencies and build ---
     # `npm install` (not `npm ci`) because this repo has no package-lock.json.
     - npm install --no-audit --no-fund
-    - npm run build
+    # build:node targets a plain Node.js server (output: .output/server/index.mjs
+    # + .output/public), which is what step 4 and Application Manager expect.
+    - npm run build:node
 
     # --- 4. Copy the built site into the document root ---
     - /bin/mkdir -p $DEPLOYPATH
